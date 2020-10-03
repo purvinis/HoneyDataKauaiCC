@@ -40,19 +40,37 @@ colorNames <- function(mm){
 #amber (85+ to 114 mm)
 #dark amber (114+ mm
 #"YlOrRd" or "Oranges"
+totgalmeas <- data %>% select(gallons) %>% sum
+data2 <- na.omit(data) %>%
+      mutate(h20FractOfTot = gallons*water/totgalmeas) %>%
+      mutate(colFractOfTot = gallons*hcolor/totgalmeas)
 
-data2 <- data %>%
-      mutate(h20FractOfTot = gallons*water/totgal) %>%
-      mutate(colFractOfTot = gallons*hcolor/totgal)
-
-data2$jack <-lapply(data2$hcolor, colorNames)
-
-data3 <- data2 %>% group_by(jack)
+data2$jack <-unlist(lapply(data2$hcolor, colorNames))
+data2 <- data.frame(data2)
+print(str(data2))
 
 colordist <- data2 %>% 
       group_by(jack) %>%
       summarize(eaColor = sum(gallons))
 
-ggplot(data= data3, aes(x=hcolor),na.omit = TRUE) +
-      geom_bar(aes(y = gallons),stat="identity",position = "stack")
+ggplot(data= data2, aes(x=jack,y = colFractOfTot)) +
+      geom_col(aes(color = jack))
 
+#You need to include stat=identity, which is basically telling ggplot2 you will
+#provide the y-values for the barplot, rather than counting the aggregate number
+#of rows for each x value, which is the default stat=count.stat="identity",position = "stack"
+
+colordistbymonth <- data2 %>% 
+  group_by(month = month(date,label=TRUE,abbr=TRUE)) %>%
+  group_by(jack) 
+
+
+waterdistbymonth <- data2 %>% 
+  group_by(month = month(date,label=TRUE,abbr=TRUE))%>%
+  summarize(waterav = mean(water))
+
+
+ggplot(data = waterdistbymonth, aes(x= month, y= waterav))+
+       geom_col()
+
+                
