@@ -47,12 +47,12 @@ data2 <- data %>%
 
 data2$jack <-lapply(data2$hcolor, colorNames)
 
+data3 <- data2 %>% group_by(jack)
+
 colordist <- data2 %>% 
       group_by(jack) %>%
       summarize(eaColor = sum(gallons))
 
-barchart(gallons ~ jack, data = data2)
-
-ggplot(data= data2, aes(x=water, y = gallons),na.omit = TRUE) +
-      geom_bar(stat="identity",position = "stack")
+ggplot(data= data3, aes(x=hcolor),na.omit = TRUE) +
+      geom_bar(aes(y = gallons),stat="identity",position = "stack")
 
