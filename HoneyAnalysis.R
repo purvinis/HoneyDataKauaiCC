@@ -54,7 +54,7 @@ colordist <- data2 %>%
       summarize(eaColor = sum(gallons))
 
 ggplot(data= data2, aes(x=jack,y = colFractOfTot)) +
-      geom_col(aes(color = jack))
+      geom_col(aes(fill = jack))
 
 #You need to include stat=identity, which is basically telling ggplot2 you will
 #provide the y-values for the barplot, rather than counting the aggregate number
@@ -70,7 +70,7 @@ waterdistbymonth <- data2 %>%
   summarize(waterav = mean(water))
 
 
-ggplot(data = waterdistbymonth, aes(x= month, y= waterav))+
-       geom_col()
+ggplot(data = colordistbymonth, aes(x= month, y= gallons))+
+       geom_col(aes(fill = jack))
 
                 
