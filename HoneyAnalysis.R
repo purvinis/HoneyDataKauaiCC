@@ -17,11 +17,9 @@ str(data)
 
 data$date <- parse_date_time(data$date,"mdy")
 
-totgal <- data %>% select(gallons) %>% sum
-
 
 #349FE4
-hcolorsPal <- brewer.pal(5,"Oranges")
+hcolorsPal <- brewer.pal(5,"YlOrBr")
 honeyColors <-colorRampPalette(hcolorsPal)
 jackNames = c("white","extra_light_amber",
               "light_amber","amber","dark_amber")
@@ -42,13 +40,12 @@ colorNames <- function(mm){
 #light amber (50+ to 85 mm)  
 #amber (85+ to 114 mm)
 #dark amber (114+ mm
-#"YlOrRd" or "Oranges"
+#"YlOrBr" or "Oranges"
 
 totgal2 <- na.omit(data) %>% select(gallons) %>% sum
 totgalmeas <- data %>% select(gallons) %>% sum
 data2 <- na.omit(data) %>%
-      mutate(h20FractOfTot = gallons*water/totgal2) %>%
-      mutate(colFractOfTot = gallons*hcolor/totgal2) %>%
+      mutate(FractOfTot = gallons/totgal2) %>%
    mutate(month = month(date,label=TRUE,abbr=TRUE))%>%
    mutate(year = year(date))
 
@@ -60,35 +57,44 @@ colordist <- data2 %>%
       group_by(jack) %>%
       summarize(eaColor = sum(gallons))
 
+waterdist<- data2 %>% 
+   group_by(month) %>%
+   summarize(sumWater = sum(gallons))
+
 
 data3 <- data2 %>%arrange(hcolor) %>%
    mutate(fjack = factor(jack,levels = jackNames))
 
-ggplot(data3, aes(x=fjack,y = colFractOfTot)) +
+p1 <- ggplot(data3, aes(x=fjack,y = gallons)) +
    geom_col(aes(fill = fjack))+
    theme(axis.text.x =element_text(angle = 90))+
    xlab("Honey color")+
-   ylab("Percent of total volume")+
-   scale_fill_brewer(palette = "YlOrRd")
+   ylab("Gallons")
+
+#+
+#   scale_fill_brewer(palette = "YlOrRd")
+png(filename = "plot1.png")
+print(p1)
+dev.off()
 
 #You need to include stat=identity, which is basically telling ggplot2 you will
 #provide the y-values for the barplot, rather than counting the aggregate number
-#of rows for each x value, which is the default stat=count.stat="identity",position = "stack"
+#of rows for each x value, which is the default stat=count.stat="identity",position = "stack".
+#Alternatively, use geom_col
 
-#colordistbymonth <- data3 %>% 
-#  arrange(factor(jack,
-#                  levels = c("white","extra_light_amber",
-#                 "light_amber","amber","dark_amber")))
-
-
-
-ggplot(data3, aes(x= month, y= gallons))+
-       geom_col(aes(fill = fjack)) 
+data4 <- data3 %>%arrange(water)
+p2 <- ggplot(data3, aes(x= month, y= water))+
+   geom_col(aes(fill = ))
 
 
-+
-   scale_fill_brewer(palette = " ")
- 
+ggplot(data4, aes(x= month,water))+ 
+   geom_point(aes(color = fjack, size = FractOfTot))+
+   scale_color_manual(values=hcolorsPal)+
+   geom_smooth(method = "lm")
+
+png(filename = "plot2.png")
+print(p2)
+dev.off()
 
 
 waterdistbymonth <- data3 %>% 
@@ -97,8 +103,6 @@ waterdistbymonth <- data3 %>%
 
 
 
-png(filename = "plot1.png")
-print(p1)
-dev.off()
+
 
                 
