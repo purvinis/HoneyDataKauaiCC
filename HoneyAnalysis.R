@@ -58,23 +58,35 @@ colordist <- data2 %>%
       summarize(eaColor = sum(gallons))
 
 waterdist<- data2 %>% 
-   group_by(month) %>%
+   group_by(water) %>%
    summarize(sumWater = sum(gallons))
 
+totAveWater <- sapply((waterdist$water %*% waterdist$sumWater)/totgal2,sum)
 
-data3 <- data2 %>%arrange(hcolor) %>%
+data3 <- data2 %>%arrange(hcolor) %>%  #need Jack colors to be a factor
    mutate(fjack = factor(jack,levels = jackNames))
 
-p1 <- ggplot(data3, aes(x=fjack,y = gallons)) +
+
+p1 <- ggplot(data3, aes(x=fjack,y = FractOfTot *100)) +
    geom_col(aes(fill = fjack))+
    theme(axis.text.x =element_text(angle = 90))+
    xlab("Honey color")+
-   ylab("Gallons")
-
-#+
-#   scale_fill_brewer(palette = "YlOrRd")
-png(filename = "plot1.png")
+   ylab("Percent of total honey volume")+
+   labs(title = "Honey Color Distribuion")+
+   scale_fill_manual(NULL, values=hcolorsPal)
+png(filename = "Honey_Color_Distribution.png")
 print(p1)
+dev.off()
+
+p2 <- ggplot(data3, aes(x=water,y = FractOfTot *100)) +
+   geom_col(aes(fill = fjack,width = 0.15))+
+   theme(axis.text.x =element_text(angle = 90))+
+   xlab("Percent water")+
+   ylab("Percent of total honey volume")+
+   labs(title = "Honey Water content Distribuion")+
+   scale_fill_manual(NULL, values=hcolorsPal)
+png(filename = "Honey_Water_Distribution.png")
+print(p2)
 dev.off()
 
 #You need to include stat=identity, which is basically telling ggplot2 you will
@@ -82,27 +94,30 @@ dev.off()
 #of rows for each x value, which is the default stat=count.stat="identity",position = "stack".
 #Alternatively, use geom_col
 
-data4 <- data3 %>%arrange(water)
-p2 <- ggplot(data3, aes(x= month, y= water))+
-   geom_col(aes(fill = ))
 
-
-ggplot(data4, aes(x= month,water))+ 
-   geom_point(aes(color = fjack, size = FractOfTot))+
+p3 <-ggplot(data3, aes(x= month,water))+ 
+   geom_point(aes(color = fjack, size = gallons))+
    scale_color_manual(values=hcolorsPal)+
-   geom_smooth(method = "lm")
+   xlab("Month")+
+   ylab("Percent water")+
+   labs(title = "Honey Water content by month and color",
+        color = "Jack's Color")
 
-png(filename = "plot2.png")
-print(p2)
+png(filename = "PercentWaterByMonthBubble.png")
+print(p3)
 dev.off()
 
+data4 <- data3 %>%
+   group_by(month) %>%
+   summarize(avGalMon = mean(gallons))
 
-waterdistbymonth <- data3 %>% 
-   group_by(month)%>%
-   summarize(waterav = mean(water))
+p4 <-ggplot(data3, aes(x=month,y = gallons/6)) +
+   geom_col(aes(fill = water))+
+   theme(axis.text.x =element_text(angle = 90))+
+   xlab("Month")+
+   ylab("Average volume, gallons")+
+   labs(title = "Average Honey volume/month")
 
-
-
-
-
-                
+png(filename = "AverageVolmonth.png")
+print(p4)
+dev.off()
