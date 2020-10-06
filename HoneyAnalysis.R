@@ -59,9 +59,10 @@ colordist <- data2 %>%
 
 waterdist<- data2 %>% 
    group_by(water) %>%
-   summarize(sumWater = sum(gallons))
+   summarize(sumWater = sum(gallons))  #how many gallons of each concentration
 
 totAveWater <- sapply((waterdist$water %*% waterdist$sumWater)/totgal2,sum)
+stDevWater <- sd(waterdist$water * waterdist$sumWater/totgal2)
 
 data3 <- data2 %>%arrange(hcolor) %>%  #need Jack colors to be a factor
    mutate(fjack = factor(jack,levels = jackNames))%>%
@@ -115,16 +116,13 @@ png(filename = "PercentWaterByMonthBubble.png")
 print(p3)
 dev.off()
 
-data4 <- data3 %>%
-   group_by(month) %>%
-   summarize(avGalMon = mean(gallons))
-
-p4 <-ggplot(data3, aes(x=month,y = gallons/6)) +
+p4 <-ggplot(data3, aes(x=month,y = gallons)) +
    geom_col(aes(fill = fwater))+
+   facet_grid(rows= vars(year))+
    theme(axis.text.x =element_text(angle = 90))+
    xlab("Month")+
-   ylab("Average volume, gallons")+
-   labs(title = "Average Honey volume/month", fill= "%H2O")
+   ylab("Honey volume, gallons")+
+   labs(title = "Honey volume/month/year", fill= "%H2O")
 
 png(filename = "AverageVolmonth.png")
 print(p4)
