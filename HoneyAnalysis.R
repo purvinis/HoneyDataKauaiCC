@@ -64,7 +64,8 @@ waterdist<- data2 %>%
 totAveWater <- sapply((waterdist$water %*% waterdist$sumWater)/totgal2,sum)
 
 data3 <- data2 %>%arrange(hcolor) %>%  #need Jack colors to be a factor
-   mutate(fjack = factor(jack,levels = jackNames))
+   mutate(fjack = factor(jack,levels = jackNames))%>%
+   mutate(fwater = factor(water))
 
 
 p1 <- ggplot(data3, aes(x=fjack,y = FractOfTot *100)) +
@@ -73,10 +74,14 @@ p1 <- ggplot(data3, aes(x=fjack,y = FractOfTot *100)) +
    xlab("Honey color")+
    ylab("Percent of total honey volume")+
    labs(title = "Honey Color Distribuion")+
-   scale_fill_manual(NULL, values=hcolorsPal)
+   scale_fill_manual(NULL, values=hcolorsPal)+
+   theme(panel.background = element_rect(fill = 'lightskyblue', colour = 'black'))
+
 png(filename = "Honey_Color_Distribution.png")
 print(p1)
 dev.off()
+
+#color and month correlation, and tot honey/year
 
 p2 <- ggplot(data3, aes(x=water,y = FractOfTot *100)) +
    geom_col(aes(fill = fjack,width = 0.15))+
@@ -84,8 +89,10 @@ p2 <- ggplot(data3, aes(x=water,y = FractOfTot *100)) +
    xlab("Percent water")+
    ylab("Percent of total honey volume")+
    labs(title = "Honey Water content Distribuion")+
-   scale_fill_manual(NULL, values=hcolorsPal)
-png(filename = "Honey_Water_Distribution.png")
+   scale_fill_manual(NULL, values=hcolorsPal) +
+   theme(panel.background = element_rect(fill = 'lightskyblue', colour = 'black'))
+png(filename = "Honey_Water_Distribution.png",
+    width = 480, height = 480, pointsize = 10)
 print(p2)
 dev.off()
 
@@ -101,7 +108,8 @@ p3 <-ggplot(data3, aes(x= month,water))+
    xlab("Month")+
    ylab("Percent water")+
    labs(title = "Honey Water content by month and color",
-        color = "Jack's Color")
+        color = "Jack's Color")+
+   theme(panel.background = element_rect(fill = 'lightskyblue', colour = 'black'))
 
 png(filename = "PercentWaterByMonthBubble.png")
 print(p3)
@@ -112,12 +120,36 @@ data4 <- data3 %>%
    summarize(avGalMon = mean(gallons))
 
 p4 <-ggplot(data3, aes(x=month,y = gallons/6)) +
-   geom_col(aes(fill = water))+
+   geom_col(aes(fill = fwater))+
    theme(axis.text.x =element_text(angle = 90))+
    xlab("Month")+
    ylab("Average volume, gallons")+
-   labs(title = "Average Honey volume/month")
+   labs(title = "Average Honey volume/month", fill= "%H2O")
 
 png(filename = "AverageVolmonth.png")
 print(p4)
+dev.off()
+
+p5 <-ggplot(data3, aes(x=hcolor,y = water)) +
+   geom_point()+
+   geom_smooth(method = "lm")+
+   xlab("Honey color, mm")+
+   ylab("% Water")+
+   labs(title = "Color and % water correlation. linear model")
+png(filename = "ColorWaterCorrelation.png")
+print(p5)
+dev.off()
+
+#lm() uses likelihood to find the model that maps values of X to distributions
+# in Y that have a normal distribution
+
+data4 <-data3 %>% group_by(year) %>% summarize(yearTot = sum(gallons))
+
+p6 <- ggplot(data3, aes(year, gallons))+
+   geom_col(aes(fill = fwater))+
+   xlab("year")+
+   ylab("total gallons")+
+   labs(title = "Honey volume by year")
+png(filename = "HoneyVolumeByYear.png")
+print(p6)
 dev.off()
