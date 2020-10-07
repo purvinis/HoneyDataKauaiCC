@@ -76,7 +76,7 @@ p1 <- ggplot(data3, aes(x=fjack,y = FractOfTot *100)) +
    ylab("Percent of total honey volume")+
    labs(title = "Honey Color Distribuion")+
    scale_fill_manual(NULL, values=hcolorsPal)+
-   theme(panel.background = element_rect(fill = 'lightskyblue', colour = 'black'))
+   theme(panel.background = element_rect(fill = 'lightsteelblue1', colour = 'black'))
 
 png(filename = "Honey_Color_Distribution.png")
 print(p1)
@@ -91,7 +91,7 @@ p2 <- ggplot(data3, aes(x=water,y = FractOfTot *100)) +
    ylab("Percent of total honey volume")+
    labs(title = "Honey Water content Distribuion")+
    scale_fill_manual(NULL, values=hcolorsPal) +
-   theme(panel.background = element_rect(fill = 'lightskyblue', colour = 'black'))
+   theme(panel.background = element_rect(fill = 'lightsteelblue1', colour = 'black'))
 png(filename = "Honey_Water_Distribution.png",
     width = 480, height = 480, pointsize = 10)
 print(p2)
@@ -108,9 +108,9 @@ p3 <-ggplot(data3, aes(x= month,water))+
    scale_color_manual(values=hcolorsPal)+
    xlab("Month")+
    ylab("Percent water")+
-   labs(title = "Honey Water content by month and color",
+   labs(title = "Honey Water content by month,color,volume, since 2015",
         color = "Jack's Color")+
-   theme(panel.background = element_rect(fill = 'lightskyblue', colour = 'black'))
+   theme(panel.background = element_rect(fill = 'lightsteelblue1', colour = 'black'))
 
 png(filename = "PercentWaterByMonthBubble.png")
 print(p3)
@@ -124,7 +124,7 @@ p4 <-ggplot(data3, aes(x=month,y = gallons)) +
    ylab("Honey volume, gallons")+
    labs(title = "Honey volume/month/year", fill= "%H2O")
 
-png(filename = "AverageVolmonth.png")
+png(filename = "HoneyVolmonthyear.png")
 print(p4)
 dev.off()
 
@@ -147,7 +147,39 @@ p6 <- ggplot(data3, aes(year, gallons))+
    geom_col(aes(fill = fwater))+
    xlab("year")+
    ylab("total gallons")+
-   labs(title = "Honey volume by year")
-png(filename = "HoneyVolumeByYear.png")
+   labs(title = "Honey volume by year with %H2O")
+png(filename = "HoneyVolumeByYearWRTwater.png")
 print(p6)
+dev.off()
+
+p7 <- ggplot(data3, aes(year, gallons))+
+   geom_col(aes(fill = fjack))+
+   xlab("year")+
+   ylab("total gallons")+
+   labs(title = "Honey volume by year with honey color")+
+   scale_fill_manual(NULL, values=hcolorsPal)+
+   theme(panel.background = element_rect(fill = 'lightsteelblue1', colour = 'black'))
+png(filename = "HoneyVolumeByYearWRTColor.png")
+print(p7)
+dev.off()
+
+data5 <- data3 %>% arrange(desc(fjack))
+p8 <- ggplot(data5, aes(month, gallons))+
+   geom_col(aes(fill = fjack))+
+   xlab("year")+
+   ylab("total gallons")+
+   labs(title = "Honey volume by month, total since 2015\n w.r.t. color")+
+   scale_fill_manual(NULL, values=hcolorsPal)+
+   theme(panel.background = element_rect(fill = 'lightsteelblue1', colour = 'black'))
+png(filename = "HoneyVolumeByMonthWRTColor.png")
+print(p8)
+dev.off()
+
+p9 <- ggplot(data3, aes(month, gallons))+
+   geom_col(aes(fill = fwater))+
+   xlab("month")+
+   ylab("total gallons")+
+   labs(title = "Honey volume by month, total since 2015\n w.r.t %H2O")
+png(filename = "HoneyVolumeByMonthWRTWater.png")
+print(p9)
 dev.off()
